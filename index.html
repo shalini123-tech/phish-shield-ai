@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhishShield AI</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1020;
+    color: white;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    padding: 35px 10px;
+}
+
+header h1 {
+    color: #60a5fa;
+    font-size: 36px;
+}
+
+header p {
+    color: #cbd5e1;
+    margin-top: 12px;
+}
+
+.container {
+    max-width: 750px;
+    margin: 20px auto;
+    padding: 25px;
+    background: #17223b;
+    border-radius: 15px;
+}
+
+h2 {
+    color: #60a5fa;
+    margin-bottom: 15px;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 15px;
+    background: #0b1020;
+    color: white;
+    border: 1px solid #64748b;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 15px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+#result {
+    display: none;
+    margin-top: 25px;
+    padding: 20px;
+    background: #253653;
+    border-radius: 10px;
+}
+
+#risk {
+    font-size: 25px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+#score {
+    margin-bottom: 15px;
+}
+
+#warnings {
+    padding-left: 20px;
+    line-height: 1.8;
+}
+
+#advice {
+    margin-top: 15px;
+    color: #bfdbfe;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #94a3b8;
+    margin: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🛡️ PhishShield AI</h1>
+    <p>Detect Scams. Understand Risks. Stay Protected.</p>
+</header>
+
+<div class="container">
+
+    <h2>🔍 Message Scanner</h2>
+
+    <p>Paste your suspicious SMS, Email or URL below:</p>
+    <br>
+
+    <textarea id="message"
+    placeholder="Paste your message or URL here..."></textarea>
+
+    <button id="scanButton">Analyze Now</button>
+
+    <div id="result">
+        <h2>Analysis Result</h2>
+
+        <p id="risk"></p>
+        <p id="score"></p>
+
+        <h3>Warning Signs:</h3>
+        <ul id="warnings"></ul>
+
+        <p id="advice"></p>
+    </div>
+
+</div>
+
+<footer>
+    PhishShield AI | Think Before You Click!
+</footer>
+
+<script>
+const button = document.getElementById("scanButton");
+
+button.addEventListener("click", function() {
+
+    const message = document
+        .getElementById("message")
+        .value.trim().toLowerCase();
+
+    const result = document.getElementById("result");
+    const risk = document.getElementById("risk");
+    const scoreText = document.getElementById("score");
+    const warningsList = document.getElementById("warnings");
+    const advice = document.getElementById("advice");
+
+    if (message === "") {
+        alert("Please enter a message first!");
+        return;
+    }
+
+    let score = 0;
+    let warnings = [];
+
+    const suspiciousWords = [
+        "urgent",
+        "immediately",
+        "password",
+        "verify your account",
+        "click here",
+        "claim your prize",
+        "won",
+        "otp",
+        "bank account",
+        "free gift",
+        "limited time",
+        "account blocked",
+        "send money",
+        "update your account"
+    ]
+
+    suspiciousWords.forEach(function(word) {
+        if (message.includes(word)) {
+            score += 15;
+            warnings.push("Suspicious phrase detected: " + word);
+        }
+    });
+
+    // Check for URLs
+    const urlPattern = /https?:\/\/[^\s]+|www\.[^\s]+/gi;
+    const urls = message.match(urlPattern) || [];
+
+    if (urls.length > 0) {
+        score += 20;
+        warnings.push("Message contains a link. Verify it carefully.");
+    }
+
+    // Check for shortened URLs
+    if (/bit\.ly|tinyurl\.com|t\.co|shorturl\.at/i.test(message)) {
+        score += 30;
+        warnings.push("Shortened URL detected.");
+    }
+
+    // Limit score to 100
+    score = Math.min(score, 100);
+
+    let level;
+
+    if (score >= 40) {
+        level = "🔴 HIGH RISK";
+    } else if (score >= 15) {
+        level = "🟠 MEDIUM RISK";
+    } else {
+        level = "🟢 LOW RISK";
+    }
+
+    risk.textContent = level;
+    scoreText.textContent = "Risk Score: " + score + "/100";
+
+    warningsList.replaceChildren();
+
+    if (warnings.length === 0) {
+        const item = document.createElement("li");
+        item.textContent = "No known warning patterns detected.";
+        warningsList.appendChild(item);
+    } else {
+        warnings.forEach(function(warning) {
+            const item = document.createElement("li");
+            item.textContent = warning;
+            warningsList.appendChild(item);
+        });
+    }
+
+    advice.textContent =
+        "Safety Tip: Never share your OTP, password or banking details. Verify suspicious messages through official channels. A low score does not guarantee safety.";
+
+    result.style.display = "block";
+
+});
+</script>
+
+</body>
+</html>
